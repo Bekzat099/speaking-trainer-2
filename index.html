@@ -184,6 +184,7 @@ function speakQuestion(auto){
   if(!('speechSynthesis' in window)){alert('Озвучка не поддерживается этим браузером.');return;}
   const cd=cards[vpos];
   const u=new SpeechSynthesisUtterance('Can you tell me about '+cleanTopic(cd.t)+'? Please answer in English.');
+  u.lang='en-US';
   const v=pickVoice(); if(v)u.voice=v;
   u.rate=0.95;
   speechSynthesis.cancel();
@@ -191,7 +192,7 @@ function speakQuestion(auto){
 }
 
 /* ---------- запись голоса ---------- */
-let mediaRecorder=null, recChunks=[], recStream=null, recActive=false, recTimer=null, recSecs=0;
+let mediaRecorder=null, recChunks=[], recStream=null, recActive=false, recTimer=null, recSecs=0, recTarget=null;
 function fmt(s){const m=Math.floor(s/60);return m+':'+String(s%60).padStart(2,'0');}
 async function startRec(){
   try{ recStream=await navigator.mediaDevices.getUserMedia({audio:true}); }
@@ -201,13 +202,13 @@ async function startRec(){
   mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};
   mediaRecorder.onstop=()=>{
     const blob=new Blob(recChunks,{type:mediaRecorder.mimeType||'audio/webm'});
-    recs[vpos]=URL.createObjectURL(blob);
+    if(recTarget!=null)recs[recTarget]=URL.createObjectURL(blob);
     recStream.getTracks().forEach(t=>t.stop());
     recActive=false;
     renderVoice();
   };
   mediaRecorder.start();
-  recActive=true; recSecs=0;
+  recActive=true; recSecs=0; recTarget=vpos;
   recTimer=setInterval(()=>{recSecs++;const el=document.getElementById('recTimer');if(el)el.textContent=fmt(recSecs);},1000);
   renderVoice();
 }
@@ -261,7 +262,7 @@ function renderVoice(){
   const cd=cards[vpos];
   const hasMic=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
   document.getElementById('vstats').textContent='Вопрос '+(vpos+1)+' / '+cards.length;
-  document.getElementById('vbar').style.width(((vpos+1)/cards.length*100)+'%');
+  document.getElementById('vbar').style.width=((vpos+1)/cards.length*100)+'%';
   let h='<div class="chip">'+esc(cd.sec)+'</div><div class="topic">'+esc(cd.t)+'</div>';
   h+='<button class="btn vio big" style="width:100%" onclick="speakQuestion(false)">🔊 ИИ: задать вопрос</button>';
   h+='<hr class="divider">';
