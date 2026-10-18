@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎤 Speaking — тренажёр (ответы из документа)</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#27364d;--tx:#e2e8f0;--mut:#94a3b8;--acc:#38bdf8;--grn:#22c55e;--red:#ef4444;--vio:#a78bfa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,Arial,sans-serif}
+.wrap{max-width:780px;margin:0 auto;padding:14px 14px 90px}
+header{position:sticky;top:0;background:rgba(15,23,42,.96);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid #334155}
+h1{font-size:18px;margin:8px 0 0}
+.tabs{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:10px 15px;font-size:15px;cursor:pointer;background:var(--card2);color:var(--tx);font-family:inherit;transition:filter .1s}
+.btn:hover{filter:brightness(1.25)}
+.btn:active{filter:brightness(.9)}
+.btn.primary{background:var(--acc);color:#06263a;font-weight:700}
+.btn.green{background:var(--grn);color:#052e12;font-weight:700}
+.btn.red{background:var(--red);color:#fff;font-weight:700}
+.btn.vio{background:var(--vio);color:#1e1b4b;font-weight:700}
+.btn.big{font-size:17px;padding:15px 22px}
+.btn.rec{background:var(--red);color:#fff}
+.stats{font-size:13px;color:var(--mut);margin-top:10px}
+.progress{height:6px;background:#334155;border-radius:3px;margin-top:8px;overflow:hidden}
+.progress>div{height:100%;background:var(--acc);width:0%;transition:width .2s}
+.cardbox{background:var(--card);border-radius:16px;padding:24px 22px;margin-top:14px;min-height:240px;display:flex;flex-direction:column}
+.chip{font-size:12px;color:var(--acc);text-transform:uppercase;letter-spacing:.6px}
+.topic{font-size:23px;font-weight:700;margin:8px 0 14px;line-height:1.25}
+.answer{flex:1;display:flex;flex-direction:column;justify-content:center}
+.en{font-size:19px;line-height:1.5;margin-bottom:12px}
+.tr{font-size:15px;line-height:1.5;color:var(--mut);margin-bottom:8px}
+.tr b{color:#cbd5e1}
+.pr{font-size:14px;line-height:1.5;color:#7c8aa0;font-style:italic;margin-bottom:8px}
+.hidden-box{border:1px dashed #475569;border-radius:14px;padding:26px;text-align:center;color:var(--mut);font-size:16px;cursor:pointer}
+.hidden-box b{color:var(--tx);font-size:18px}
+.navrow{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.navrow .btn{flex:1}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.actions .btn{flex:1;min-width:140px}
+.hint{font-size:12px;color:var(--mut);margin-top:12px;text-align:center}
+.sechead{background:var(--acc);color:#06263a;font-weight:700;border-radius:10px;padding:8px 12px;margin:24px 0 10px;font-size:14px}
+.item{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.item .topic{font-size:16px;margin:0 0 8px}
+.item .en{font-size:15.5px;margin-bottom:6px}
+.item .tr{font-size:14px;margin-bottom:4px}
+.item .pr{font-size:13px;margin-bottom:4px}
+.enlocked{color:var(--mut);font-size:14px;cursor:pointer}
+.recrow{display:flex;align-items:center;gap:10px;margin:10px 0}
+.recdot{width:12px;height:12px;border-radius:50%;background:var(--red);display:inline-block;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+audio{width:100%;margin:10px 0}
+details{margin-top:12px;background:#16233b;border-radius:10px;padding:10px 14px}
+summary{cursor:pointer;font-size:14px;color:var(--acc);font-weight:600}
+.divider{border:0;border-top:1px solid #334155;margin:16px 0}
+.micnote{font-size:12.5px;color:var(--mut);margin-top:6px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>🎤 Speaking — тренажёр (ответы из документа)</h1>
+  <div class="tabs">
+    <button class="btn primary" id="tab-list" onclick="showView('list')">📖 Всё</button>
+    <button class="btn" id="tab-cards" onclick="showView('cards')">🎴 Карточки</button>
+    <button class="btn" id="tab-voice" onclick="showView('voice')">🎙 ИИ-голос</button>
+    <button class="btn" id="btn-hide" onclick="toggleHide()">🙈 Скрыть англ.</button>
+  </div>
+</div></header>
+<div class="wrap">
+  <div id="list-view"></div>
+
+  <div class="hint" style="margin:0 0 10px">Ответы из документа: английский + қазақша оқылуы (произношение) + аудармасы.</div><div id="card-view" style="display:none">
+    <div class="stats" id="stats"></div>
+    <div class="progress"><div id="pbar"></div></div>
+    <div class="cardbox" id="card"></div>
+    <div class="navrow">
+      <button class="btn" onclick="nav(-1)">← Назад</button>
+      <button class="btn" onclick="nav(1)">Дальше →</button>
+      <button class="btn" onclick="reshuffle()">🔀 Перемешать</button>
+    </div>
+    <div class="hint">Клавиатура: Space/Enter — показать и дальше · ←/→ — навигация · 1 — знаю · 2 — не знаю</div>
+  </div>
+
+  <div id="voice-view" style="display:none">
+    <div class="stats" id="vstats"></div>
+    <div class="progress"><div id="vbar"></div></div>
+    <div class="cardbox" id="vcard"></div>
+    <div class="navrow">
+      <button class="btn" onclick="vnav(-1)">← Назад</button>
+      <button class="btn primary" onclick="vnav(1)">Дальше →</button>
+    </div>
+    <div class="hint">🎙 Режим: нажми «ИИ: задать вопрос» — ИИ спросит по-английски, потом нажми «Записать ответ» и ответь голосом. Дальше можно прослушать себя или распознать текст.</div>
+  </div>
+</div>
+<script>
+const DATA = [{"title": "1-БӨЛІМ. PEOPLE — АДАМДАР", "topics": [{"t": "People 1: A famous person", "en": "My favourite famous person is Dimash Kudaibergen. He is a famous singer from Kazakhstan. He has a beautiful and powerful voice. I admire him because he is talented and hardworking. If I met him, I would take a photo with him.", "pr": "май фэвауритэ фэмаус пэрсон ис димэш кадэйбэргэн. хэ ис э фэмаус сингэр фром кэzэкхстэн. хэ хэс э биатифал энд пауэрфал войкэ. и эдмёрэ хим бэкэасэ хэ ис тэлэнтэд энд хардуоркинг. иф и мэт хим, и уаулд тэкэ э фото уис хим.", "kz": "Менің сүйікті танымал адамым — Димаш Құдайберген. Ол Қазақстаннан шыққан танымал әнші. Оның дауысы әдемі әрі күшті. Мен оны талантты және еңбекқор болғандықтан құрметтеймін. Егер оны кездестірсем, онымен суретке түсер едім."}, {"t": "People 2: A sports star", "en": "My favourite sports star is Gennady Golovkin. He is a famous boxer from Kazakhstan. He has won many important fights. I admire him because he is strong and hardworking. I would like to meet him one day.", "pr": "май фэвауритэ спортс стар ис гэннэди головкин. хэ ис э фэмаус боксэр фром кэzэкхстэн. хэ хэс уон мэни импортэнт файтс. и эдмёрэ хим бэкэасэ хэ ис стронг энд хардуоркинг. и уаулд ликэ то мит хим онэ дэй.", "kz": "Менің сүйікті спорт жұлдызым — Геннадий Головкин. Ол Қазақстаннан шыққан танымал боксшы. Ол көптеген маңызды жекпе-жектерде жеңіске жеткен. Мен оны күшті әрі еңбекқор болғандықтан құрметтеймін. Мен оны бір күні кездестіргім келеді."}, {"t": "People 3: A singer or musician", "en": "My favourite singer is Dimash Kudaibergen. He sings different types of songs. I like his voice because it is very beautiful. He is popular in Kazakhstan and in other countries. I enjoy listening to his music.", "pr": "май фэвауритэ сингэр ис димэш кадэйбэргэн. хэ сингс диффэрэнт типэс оф сонгс. и ликэ хис войкэ бэкэасэ ит ис вэри биатифал. хэ ис попалар ин кэzэкхстэн энд ин осэр каунтриэс. и энджой листэнинг то хис масик.", "kz": "Менің сүйікті әншім — Димаш Құдайберген. Ол әртүрлі жанрдағы әндерді орындайды. Маған оның дауысы өте әдемі болғандықтан ұнайды. Ол Қазақстанда және басқа елдерде танымал. Мен оның әндерін тыңдағанды ұнатамын."}, {"t": "People 4: A character from a story/film/TV programme", "en": "My favourite film character is Spider-Man. I first watched his film when I was a child. He is brave, kind and helpful. He always tries to help other people. I like him because he teaches us to be brave and responsible.", "pr": "май фэвауритэ филм чарэктэр ис спидэр-мэн. и фёрст уэтчэд хис филм уэн и уэс э чилд. хэ ис брэвэ, кинд энд хэлпфал. хэ элуэйс триэс то хэлп осэр пэоплэ. и ликэ хим бэкэасэ хэ тичэс ас то бэ брэвэ энд рэспонсиблэ.", "kz": "Менің сүйікті фильм кейіпкерім — Өрмекші адам. Мен оның фильмін алғаш рет бала кезімде көрдім. Ол батыл, мейірімді және көмектесуге дайын. Ол әрдайым басқа адамдарға көмектесуге тырысады. Маған ол ұнайды, өйткені ол бізге батыл әрі жауапты болуды үйретеді."}, {"t": "People 5: An old person", "en": "An old person who has influenced me is my grandmother. She is kind, wise and caring. She always gives me good advice. She has taught me to respect other people and work hard. I love her very much.", "pr": "эн олд пэрсон уо хэс инфлаэнкэд мэ ис май грэндмосэр. шэ ис кинд, уисэ энд каринг. шэ элуэйс гивэс мэ гуд эдвикэ. шэ хэс тэагхт мэ то рэспэкт осэр пэоплэ энд уорк хард. и ловэ хэр вэри мач.", "kz": "Маған әсер еткен қарт адам — менің әжем. Ол мейірімді, дана және қамқор. Ол маған әрдайым жақсы кеңес береді. Ол маған басқа адамдарды құрметтеуді және еңбектенуді үйретті. Мен оны қатты жақсы көремін."}, {"t": "People 6: A teacher who has influenced you", "en": "A teacher who influenced me is my English teacher. I met her at school. She is patient, friendly and helpful. She made English more interesting for me and encouraged me to practise. I still remember her lessons.", "pr": "э тичэр уо инфлаэнкэд мэ ис май энглиш тичэр. и мэт хэр эт счул. шэ ис пэтиэнт, фриэндли энд хэлпфал. шэ мэдэ энглиш морэ интэрэстинг фор мэ энд энкаурэгэд мэ то прэктисэ. и стилл рэмэмбэр хэр лэссонс.", "kz": "Маған әсер еткен мұғалім — ағылшын тілі мұғалімім. Мен онымен мектепте таныстым. Ол сабырлы, ақкөңіл және көмектесуге дайын. Ол ағылшын тілін маған қызықты етіп, жаттығуға ынталандырды. Мен оның сабақтарын әлі де есімде сақтаймын."}, {"t": "People 7: A neighbour", "en": "My neighbour is a friendly and helpful person. I have known this person for several years. We greet each other and sometimes talk. I like my neighbour because they are polite and kind. I see them quite often.", "pr": "май нэайбаур ис э фриэндли энд хэлпфал пэрсон. и хэвэ кнаун сис пэрсон фор сэвэрэл иирс. уэ грит ич осэр энд сомэтимэс тэлк. и ликэ май нэайбаур бэкэасэ сэи арэ политэ энд кинд. и си сэм каитэ офтэн.", "kz": "Менің көршім — ақкөңіл әрі көмектесуге дайын адам. Мен оны бірнеше жылдан бері білемін. Біз амандасып, кейде сөйлесеміз. Маған көршім сыпайы әрі мейірімді болғандықтан ұнайды. Мен оны жиі көремін."}, {"t": "People 8: A child you know", "en": "A child I know is my younger cousin. The child is cheerful, curious and active. We sometimes play games and draw pictures together. I like the child because they are funny and kind. Spending time together makes me happy.", "pr": "э чилд и кнау ис май иаунгэр каусин. сэ чилд ис чирфал, кёриаус энд эктивэ. уэ сомэтимэс плэй гэмэс энд дрэу пиктёрэс тогэсэр. и ликэ сэ чилд бэкэасэ сэи арэ фанни энд кинд. спэндинг тимэ тогэсэр мэкэс мэ хэппи.", "kz": "Мен танитын бала — менің кішкентай немере бауырым. Ол көңілді, қызығушылығы жоғары және белсенді. Біз кейде бірге ойын ойнап, сурет саламыз. Маған оның көңілді әрі мейірімді болғаны ұнайды. Бірге уақыт өткізу мені қуантады."}, {"t": "People 9: A family member", "en": "My favourite family member is my mother. She is caring, patient and hardworking. We often talk and spend time together. I like her because she always supports me. I think I am similar to her because we are both kind.", "pr": "май фэвауритэ фэмили мэмбэр ис май мосэр. шэ ис каринг, пэтиэнт энд хардуоркинг. уэ офтэн тэлк энд спэнд тимэ тогэсэр. и ликэ хэр бэкэасэ шэ элуэйс саппортс мэ. и синк и эм симилар то хэр бэкэасэ уэ арэ бос кинд.", "kz": "Менің сүйікті отбасы мүшем — анам. Ол қамқор, сабырлы және еңбекқор. Біз жиі сөйлесіп, бірге уақыт өткіземіз. Ол мені әрдайым қолдайтындықтан, мен оны жақсы көремін. Екеуіміз де мейірімді болғандықтан, өзімді оған ұқсаймын деп ойлаймын."}, {"t": "People 10: Compare two family members", "en": "I would like to compare my mother and father. They both care about our family and work hard. My mother is more patient, while my father is more practical. They give me advice and support me. I love them both because they are important to me.", "pr": "и уаулд ликэ то компарэ май мосэр энд фэсэр. сэи бос карэ эбаут аур фэмили энд уорк хард. май мосэр ис морэ пэтиэнт, уилэ май фэсэр ис морэ прэктикэл. сэи гивэ мэ эдвикэ энд саппорт мэ. и ловэ сэм бос бэкэасэ сэи арэ импортэнт то мэ.", "kz": "Мен анам мен әкемді салыстырғым келеді. Екеуі де отбасымызға қамқор болып, көп еңбек етеді. Анам сабырлырақ, ал әкем іскерлеу. Олар маған кеңес беріп, қолдайды. Екеуі де мен үшін маңызды болғандықтан, оларды жақсы көремін."}, {"t": "People 11: Someone you have studied or worked with", "en": "I once studied with a classmate who was friendly and responsible. We first met at school. We had a good relationship and helped each other with homework. Other students liked this person because they were polite. I was happy to work with them.", "pr": "и онкэ стадиэд уис э клэссмэтэ уо уэс фриэндли энд рэспонсиблэ. уэ фёрст мэт эт счул. уэ хэд э гуд рэлэшэншип энд хэлпэд ич осэр уис хомэуорк. осэр стадэнтс ликэд сис пэрсон бэкэасэ сэи уэрэ политэ. и уэс хэппи то уорк уис сэм.", "kz": "Мен бір кездері ақкөңіл әрі жауапты сыныптасыммен бірге оқыдым. Біз мектепте таныстық. Қарым-қатынасымыз жақсы болды және үй тапсырмасын орындауда бір-бірімізге көмектестік. Басқа оқушылар оны сыпайы болғандықтан жақсы көрді. Онымен бірге жұмыс істегеніме қуандым."}, {"t": "People 12: A friend", "en": "My close friend is a kind and funny person. We first met at school. I like this friend because they listen to me and support me. We enjoy talking, walking and sharing ideas. My friend gets on well with many people.", "pr": "май клосэ фриэнд ис э кинд энд фанни пэрсон. уэ фёрст мэт эт счул. и ликэ сис фриэнд бэкэасэ сэи листэн то мэ энд саппорт мэ. уэ энджой тэлкинг, уэлкинг энд шаринг идис. май фриэнд гэтс он уэлл уис мэни пэоплэ.", "kz": "Менің жақын досым — мейірімді әрі көңілді адам. Біз мектепте таныстық. Ол мені тыңдап, қолдайтындықтан, маған ұнайды. Біз сөйлескенді, серуендегенді және ой бөліскенді ұнатамыз. Досым көптеген адамдармен жақсы тіл табысады."}, {"t": "People 13: A happy person you know", "en": "A happy person I know is my friend. This person is usually smiling and positive. We talk, go for walks and share jokes. I think my friend is happy because they appreciate small things and enjoy spending time with others. Their good mood makes people feel comfortable.", "pr": "э хэппи пэрсон и кнау ис май фриэнд. сис пэрсон ис асаэлли смилинг энд поситивэ. уэ тэлк, го фор уэлкс энд шарэ джокэс. и синк май фриэнд ис хэппи бэкэасэ сэи эппрэкиэтэ смэлл сингс энд энджой спэндинг тимэ уис осэрс. сэёр гуд муд мэкэс пэоплэ фил комфортэблэ.", "kz": "Мен танитын бақытты адам — менің досым. Ол үнемі күлімдеп, жақсы көңіл күйде жүреді. Біз сөйлесіп, серуендеп, әзілдермен бөлісеміз. Досым кішкентай қуаныштарды бағалап, басқалармен уақыт өткізгенді ұнататындықтан бақытты деп ойлаймын. Оның жақсы көңіл күйі адамдарға жайлылық сыйлайды."}, {"t": "People 14: A successful leader who you admire", "en": "I admire a successful leader who works hard and listens to people. A good leader is responsible, fair and confident. I admire this person because they inspire others to reach their goals. Their example teaches people to work as a team. I hope to learn these qualities too.", "pr": "и эдмёрэ э саккэссфал лидэр уо уоркс хард энд листэнс то пэоплэ. э гуд лидэр ис рэспонсиблэ, фэйр энд конфидэнт. и эдмёрэ сис пэрсон бэкэасэ сэи инспёрэ осэрс то рич сэёр гоэлс. сэёр эксэмплэ тичэс пэоплэ то уорк эс э тим. и хопэ то лирн сэсэ каэлитиэс ту.", "kz": "Мен еңбекқор әрі адамдарды тыңдайтын табысты көшбасшыны құрметтеймін. Жақсы көшбасшы жауапты, әділ және өзіне сенімді болады. Мен оны басқаларды мақсатына жетуге шабыттандыратыны үшін құрметтеймін. Оның үлгісі адамдарға командамен жұмыс істеуді үйретеді. Мен де осы қасиеттерді үйренгім келеді."}, {"t": "People 15: Someone you know who speaks another language", "en": "Someone I know who speaks another language is my friend. We met at school. My friend speaks English well and practises it regularly. I like this person because they are patient and enjoy helping others learn. Knowing another language can create many opportunities.", "pr": "сомэонэ и кнау уо спикс эносэр лэнгаэгэ ис май фриэнд. уэ мэт эт счул. май фриэнд спикс энглиш уэлл энд прэктисэс ит рэгаларли. и ликэ сис пэрсон бэкэасэ сэи арэ пэтиэнт энд энджой хэлпинг осэрс лирн. кнауинг эносэр лэнгаэгэ кэн критэ мэни оппортанитиэс.", "kz": "Басқа тілде сөйлейтін танысым — менің досым. Біз мектепте таныстық. Досым ағылшын тілінде жақсы сөйлейді және оны үнемі жаттықтырады. Ол сабырлы әрі басқаларға үйренуге көмектескенді ұнататындықтан, маған ұнайды. Басқа тілді білу көптеген мүмкіндік ашады."}]}, {"title": "2-БӨЛІМ. PLACE — ОРЫНДАР", "topics": [{"t": "Place 1: An important building", "en": "An important building in my city is the local library. It is in a convenient place and looks modern. People go there to read, study and borrow books. The library is quiet and comfortable. I visit it when I need to study.", "pr": "эн импортэнт баилдинг ин май кити ис сэ локэл либрари. ит ис ин э конвэниэнт плэкэ энд лукс модэрн. пэоплэ го сэрэ то рид, стади энд боррау букс. сэ либрари ис каиэт энд комфортэблэ. и висит ит уэн и нид то стади.", "kz": "Менің қаламдағы маңызды ғимарат — жергілікті кітапхана. Ол ыңғайлы жерде орналасқан және заманауи көрінеді. Адамдар ол жерге кітап оқу, сабақ оқу және кітап алу үшін барады. Кітапхана тыныш әрі жайлы. Оқу керек болғанда мен оған барамын."}, {"t": "Place 3: A famous building", "en": "A famous building in my city is a large cultural centre. It has an attractive design and is easy to recognise. People use it for concerts, meetings and public events. I like its appearance and atmosphere. I visit it from time to time.", "pr": "э фэмаус баилдинг ин май кити ис э ларгэ калтёрэл кэнтрэ. ит хэс эн эттрэктивэ дэсигн энд ис иси то рэкогнисэ. пэоплэ асэ ит фор конкэртс, митингс энд паблик эвэнтс. и ликэ итс эппирэнкэ энд этмосфэрэ. и висит ит фром тимэ то тимэ.", "kz": "Менің қаламдағы әйгілі ғимарат — үлкен мәдениет орталығы. Оның дизайны тартымды және оны оңай тануға болады. Онда концерттер, кездесулер және қоғамдық іс-шаралар өтеді. Маған оның сыртқы көрінісі мен атмосферасы ұнайды. Мен оған анда-санда барамын."}, {"t": "Place 4: A place of natural beauty", "en": "A beautiful natural place I have visited is a lake outside the city. The water and the surrounding landscape were lovely. I walked near the lake and took photos. The fresh air helped me relax. I would like to visit it again.", "pr": "э биатифал нэтёрэл плэкэ и хэвэ виситэд ис э лэкэ аутсидэ сэ кити. сэ уэтэр энд сэ сёрраундинг лэндскэпэ уэрэ ловэли. и уэлкэд нир сэ лэкэ энд тук фотос. сэ фрэш эйр хэлпэд мэ рэлэкс. и уаулд ликэ то висит ит эгэйн.", "kz": "Мен барған әсем табиғи орын — қаланың сыртындағы көл. Су мен айналасындағы табиғат өте әдемі болды. Мен көл жағасында серуендеп, суретке түстім. Таза ауа демалуыма көмектесті. Мен ол жерге қайта барғым келеді."}, {"t": "Place 5: A peaceful place", "en": "A peaceful place I have visited is a park near my home. I went there on a quiet afternoon. I walked, sat on a bench and listened to the birds. There were not many people, so I felt relaxed. It was a good place to rest.", "pr": "э пикэфал плэкэ и хэвэ виситэд ис э парк нир май хомэ. и уэнт сэрэ он э каиэт эфтэрнун. и уэлкэд, сэт он э бэнч энд листэнэд то сэ бёрдс. сэрэ уэрэ нот мэни пэоплэ, со и фэлт рэлэксэд. ит уэс э гуд плэкэ то рэст.", "kz": "Мен барған тыныш орын — үйімнің жанындағы саябақ. Мен ол жерге тыныш бір түсте бардым. Серуендеп, орындыққа отырып, құстардың дауысын тыңдадым. Адам аз болғандықтан, өзімді жайлы сезіндім. Бұл демалуға жақсы орын болды."}, {"t": "Place 6: A quiet place", "en": "A quiet place I know is the library. It is clean, calm and comfortable. I go there when I need to read or prepare for classes. People usually speak quietly there. There are also quiet parks in my city.", "pr": "э каиэт плэкэ и кнау ис сэ либрари. ит ис клин, кэлм энд комфортэблэ. и го сэрэ уэн и нид то рид ор прэпарэ фор клэссэс. пэоплэ асаэлли спик каиэтли сэрэ. сэрэ арэ элсо каиэт паркс ин май кити.", "kz": "Мен білетін тыныш орын — кітапхана. Ол таза, тыныш әрі жайлы. Кітап оқу немесе сабаққа дайындалу керек болғанда барамын. Ол жерде адамдар әдетте ақырын сөйлейді. Менің қаламда тыныш саябақтар да бар."}, {"t": "Place 7: A place in your city that you know well", "en": "A place in my city that I know well is the central park. I go there with friends or family. It has walking paths, trees and places to sit. Many people visit it, especially in good weather. I like it because it is relaxing.", "pr": "э плэкэ ин май кити сэт и кнау уэлл ис сэ кэнтрэл парк. и го сэрэ уис фриэндс ор фэмили. ит хэс уэлкинг пэсс, трис энд плэкэс то сит. мэни пэоплэ висит ит, эспэкиэлли ин гуд уисэр. и ликэ ит бэкэасэ ит ис рэлэксинг.", "kz": "Менің қаламда жақсы білетін орным — орталық саябақ. Мен ол жерге достарыммен немесе отбасыммен барамын. Онда серуендеу жолдары, ағаштар және отыратын орындар бар. Әсіресе ауа райы жақсы кезде көп адам келеді. Маған ол жерде демалуға болатындықтан ұнайды."}, {"t": "Place 8: A walk that you regularly take", "en": "I regularly walk along the streets near my home. I try to do this a few times a week. I like the walk because it helps me clear my mind and get fresh air. Sometimes I listen to music while walking. Other people in my neighbourhood enjoy walking too.", "pr": "и рэгаларли уэлк элонг сэ стритс нир май хомэ. и три то до сис э фэу тимэс э уик. и ликэ сэ уэлк бэкэасэ ит хэлпс мэ клир май минд энд гэт фрэш эйр. сомэтимэс и листэн то масик уилэ уэлкинг. осэр пэоплэ ин май нэайбаурхуд энджой уэлкинг ту.", "kz": "Мен үйімнің жанындағы көшелермен үнемі серуендеймін. Аптасына бірнеше рет серуендеуге тырысамын. Серуендеу ойымды жинақтап, таза ауа жұтуға көмектеседі. Кейде жүргенде музыка тыңдаймын. Менің ауданымдағы басқа адамдар да серуендегенді ұнатады."}, {"t": "Place 9: A garden or park", "en": "A park I know is a green park near the centre of my city. I go there a few times a month. I walk, talk with friends and sometimes take photos. It has trees, flowers and benches. I would like to have more parks like it in my city.", "pr": "э парк и кнау ис э грин парк нир сэ кэнтрэ оф май кити. и го сэрэ э фэу тимэс э монс. и уэлк, тэлк уис фриэндс энд сомэтимэс тэкэ фотос. ит хэс трис, флауэрс энд бэнчэс. и уаулд ликэ то хэвэ морэ паркс ликэ ит ин май кити.", "kz": "Мен білетін саябақ — қаламның орталығына жақын жасыл саябақ. Мен оған айына бірнеше рет барамын. Серуендеймін, достарыммен сөйлесемін және кейде суретке түсемін. Онда ағаштар, гүлдер және орындықтар бар. Қаламда осындай саябақтар көбірек болғанын қалаймын."}, {"t": "Place 10: A river, lake or sea you have visited", "en": "I have visited a lake with my family. We went there to relax and enjoy nature. I liked the clean air, the water and the peaceful view. We took photos and spent time together. I would love to go there again.", "pr": "и хэвэ виситэд э лэкэ уис май фэмили. уэ уэнт сэрэ то рэлэкс энд энджой нэтёрэ. и ликэд сэ клин эйр, сэ уэтэр энд сэ пикэфал виэу. уэ тук фотос энд спэнт тимэ тогэсэр. и уаулд ловэ то го сэрэ эгэйн.", "kz": "Мен отбасыммен көлге бардым. Біз ол жерге демалу және табиғатты тамашалау үшін бардық. Маған таза ауа, су және тыныш көрініс ұнады. Біз суретке түсіп, бірге уақыт өткіздік. Ол жерге қайта барғым келеді."}, {"t": "Place 11: A shop", "en": "My favourite shop is a clothing shop in the city centre. It sells casual clothes and accessories. I visit it when I need something new. I like the shop because the clothes are fashionable and the staff are helpful. The prices are also reasonable.", "pr": "май фэвауритэ шоп ис э клосинг шоп ин сэ кити кэнтрэ. ит сэллс кэсаэл клосэс энд эккэссориэс. и висит ит уэн и нид сомэсинг нэу. и ликэ сэ шоп бэкэасэ сэ клосэс арэ фэшионэблэ энд сэ стэфф арэ хэлпфал. сэ прикэс арэ элсо рисонэблэ.", "kz": "Менің сүйікті дүкенім — қала орталығындағы киім дүкені. Онда күнделікті киімдер мен аксессуарлар сатылады. Жаңа нәрсе керек болғанда барамын. Киімдері сәнді, ал қызметкерлері көмектесетіндіктен, маған ұнайды. Бағалары да қолайлы."}, {"t": "Place 12: A library", "en": "I have visited a public library in my city. I use it to read books and study for exams. I do not go there every day, but I visit when I need a quiet place. It has many books, desks and computers. I like its calm atmosphere.", "pr": "и хэвэ виситэд э паблик либрари ин май кити. и асэ ит то рид букс энд стади фор эксэмс. и до нот го сэрэ эвэри дэй, бат и висит уэн и нид э каиэт плэкэ. ит хэс мэни букс, дэскс энд компатэрс. и ликэ итс кэлм этмосфэрэ.", "kz": "Мен қаламдағы қоғамдық кітапханаға бардым. Онда кітап оқып, емтиханға дайындаламын. Күн сайын бармаймын, бірақ тыныш орын қажет болғанда барамын. Онда көп кітап, үстел және компьютер бар. Маған оның тыныш атмосферасы ұнайды."}, {"t": "Place 13: A museum you have visited", "en": "I once visited a history museum. I went there to learn more about the past of my country. I liked the old objects, photographs and information about important events. The visit was interesting and educational. I would like to visit another museum too.", "pr": "и онкэ виситэд э хистори масэам. и уэнт сэрэ то лирн морэ эбаут сэ пэст оф май каунтри. и ликэд сэ олд обджэктс, фотогрэфс энд информэшэн эбаут импортэнт эвэнтс. сэ висит уэс интэрэстинг энд эдакэшэнэл. и уаулд ликэ то висит эносэр масэам ту.", "kz": "Мен бір рет тарих музейіне бардым. Елімнің өткені туралы көбірек білу үшін бардым. Маған көне заттар, фотосуреттер және маңызды оқиғалар туралы ақпарат ұнады. Саяхат қызықты әрі танымдық болды. Басқа музейге де барғым келеді."}, {"t": "Place 14: Your childhood home", "en": "My childhood home was a comfortable house where I lived with my family. It was in a quiet neighbourhood. I lived there for many years. My favourite thing was spending time with my family. I still have many happy memories of that home.", "pr": "май чилдхуд хомэ уэс э комфортэблэ хаусэ уэрэ и ливэд уис май фэмили. ит уэс ин э каиэт нэайбаурхуд. и ливэд сэрэ фор мэни иирс. май фэвауритэ синг уэс спэндинг тимэ уис май фэмили. и стилл хэвэ мэни хэппи мэмориэс оф сэт хомэ.", "kz": "Менің балалық шағым өткен үй — отбасыммен тұрған жайлы үй. Ол тыныш ауданда орналасқан еді. Мен онда көп жыл тұрдым. Маған отбасыммен уақыт өткізу ұнайтын. Сол үйге байланысты көптеген бақытты естеліктерім бар."}, {"t": "Place 15: Your idea of an ideal house", "en": "My ideal house would be bright, comfortable and spacious. I would like it to have a garden and large windows. It would include a cosy living room and a quiet study room. I would live there with my family. I hope I can have a house like this one day.", "pr": "май идил хаусэ уаулд бэ брайт, комфортэблэ энд спэкиаус. и уаулд ликэ ит то хэвэ э гардэн энд ларгэ уиндаус. ит уаулд инкладэ э коси ливинг рум энд э каиэт стади рум. и уаулд ливэ сэрэ уис май фэмили. и хопэ и кэн хэвэ э хаусэ ликэ сис онэ дэй.", "kz": "Менің арманымдағы үй жарық, жайлы және кең болар еді. Оның бақшасы мен үлкен терезелері болғанын қалаймын. Онда жайлы қонақ бөлме және тыныш оқу бөлмесі болады. Мен онда отбасыммен тұрар едім. Бір күні осындай үйім болады деп үміттенемін."}, {"t": "Place 16: A restaurant", "en": "I have visited a family restaurant in my city. It serves traditional and international food. I liked the tasty meals and friendly service. The atmosphere was comfortable, so we enjoyed our time there. I would recommend it to my friends.", "pr": "и хэвэ виситэд э фэмили рэстэёрэнт ин май кити. ит сэрвэс трэдишэнэл энд интэрнэшэнэл фуд. и ликэд сэ тэсти милс энд фриэндли сэрвикэ. сэ этмосфэрэ уэс комфортэблэ, со уэ энджойэд аур тимэ сэрэ. и уаулд рэкоммэнд ит то май фриэндс.", "kz": "Мен қаламдағы отбасылық мейрамханаға бардым. Онда ұлттық және халықаралық тағамдар ұсынылады. Маған дәмді тағамдары мен жылы қызмет көрсетуі ұнады. Атмосферасы жайлы болғандықтан, уақытты жақсы өткіздік. Оны достарыма ұсынар едім."}, {"t": "Place 17: A city you would like to visit", "en": "I would like to visit Istanbul in Türkiye. It is a famous city with a long history. I want to see its beautiful buildings, markets and the Bosphorus. I would also like to try local food. I hope I can visit it in the future.", "pr": "и уаулд ликэ то висит истэнбал ин тüркииэ. ит ис э фэмаус кити уис э лонг хистори. и уэнт то си итс биатифал баилдингс, маркэтс энд сэ босфорас. и уаулд элсо ликэ то три локэл фуд. и хопэ и кэн висит ит ин сэ фатёрэ.", "kz": "Мен Түркиядағы Ыстанбұл қаласына барғым келеді. Бұл — тарихы ұзақ, әйгілі қала. Оның әдемі ғимараттарын, базарларын және Босфор бұғазын көргім келеді. Жергілікті тағамдарды да жеп көргім келеді. Болашақта барамын деп үміттенемін."}, {"t": "Place 18: A country you would like to visit", "en": "I would like to visit Japan. It is famous for its culture, technology and beautiful nature. I want to see Tokyo and visit traditional temples. I would also like to try Japanese food. I hope to travel there one day.", "pr": "и уаулд ликэ то висит джэпэн. ит ис фэмаус фор итс калтёрэ, тэчнологи энд биатифал нэтёрэ. и уэнт то си токио энд висит трэдишэнэл тэмплэс. и уаулд элсо ликэ то три джэпэнэсэ фуд. и хопэ то трэвэл сэрэ онэ дэй.", "kz": "Мен Жапонияға барғым келеді. Ол мәдениетімен, технологиясымен және әдемі табиғатымен танымал. Токио қаласын көріп, дәстүрлі ғибадатханаларға барғым келеді. Жапон тағамдарын да жеп көргім келеді. Бір күні саяхаттаймын деп үміттенемін."}, {"t": "Place 19: A city/town/village you have visited", "en": "I have visited a town with my family. We walked around the town and visited local places. I liked the friendly people and peaceful atmosphere. We tried some local food and took photos. I would like to visit it again.", "pr": "и хэвэ виситэд э таун уис май фэмили. уэ уэлкэд араунд сэ таун энд виситэд локэл плэкэс. и ликэд сэ фриэндли пэоплэ энд пикэфал этмосфэрэ. уэ триэд сомэ локэл фуд энд тук фотос. и уаулд ликэ то висит ит эгэйн.", "kz": "Мен отбасыммен бір қалаға бардым. Қаланы аралап, жергілікті орындарға бардық. Маған ақкөңіл адамдар мен тыныш атмосфера ұнады. Жергілікті тағамдардан дәм татып, суретке түстік. Ол жерге қайта барғым келеді."}, {"t": "Place 20: A monument", "en": "An important monument in Kazakhstan is the Baiterek Tower in Astana. It is tall and has a golden sphere at the top. It represents the country's future and independence. Many tourists visit it and take photos. It is one of the well-known symbols of Kazakhstan.", "pr": "эн импортэнт монамэнт ин кэzэкхстэн ис сэ бэйтэрэк тауэр ин эстэнэ. ит ис тэлл энд хэс э голдэн сфэрэ эт сэ топ. ит рэпрэсэнтс сэ каунтри'с фатёрэ энд индэпэндэнкэ. мэни тауристс висит ит энд тэкэ фотос. ит ис онэ оф сэ уэлл-кнаун симболс оф кэzэкхстэн.", "kz": "Қазақстандағы маңызды ескерткіштердің бірі — Астанадағы Бәйтерек. Ол биік, төбесінде алтын түсті шар бар. Ол елдің болашағы мен тәуелсіздігін білдіреді. Көптеген туристер келіп, суретке түседі. Бұл — Қазақстанның танымал нышандарының бірі."}, {"t": "Place 21: A hotel", "en": "I once stayed in a hotel during a family trip. It was in a convenient location and the room was clean. We stayed there to rest during our journey. I liked the comfortable beds and helpful staff. I would stay there again.", "pr": "и онкэ стэйэд ин э хотэл дёринг э фэмили трип. ит уэс ин э конвэниэнт локэшэн энд сэ рум уэс клин. уэ стэйэд сэрэ то рэст дёринг аур джаурнэи. и ликэд сэ комфортэблэ бэдс энд хэлпфал стэфф. и уаулд стэй сэрэ эгэйн.", "kz": "Мен бірде отбасылық сапар кезінде қонақүйде тұрдым. Ол ыңғайлы жерде орналасқан, бөлмесі таза болды. Сапар барысында демалу үшін сонда тоқтадық. Маған жайлы төсектер мен көмектесетін қызметкерлер ұнады. Тағы да сонда тұрар едім."}, {"t": "Place 22: Your favourite room", "en": "My favourite room at home is my bedroom. It is comfortable and has a bed, a desk and a wardrobe. I use it to sleep, study and relax. I like it because I can have some quiet time there. It is my favourite place at home.", "pr": "май фэвауритэ рум эт хомэ ис май бэдрум. ит ис комфортэблэ энд хэс э бэд, э дэск энд э уардробэ. и асэ ит то слип, стади энд рэлэкс. и ликэ ит бэкэасэ и кэн хэвэ сомэ каиэт тимэ сэрэ. ит ис май фэвауритэ плэкэ эт хомэ.", "kz": "Үйдегі сүйікті бөлмем — жатын бөлмем. Ол жайлы, ішінде төсек, үстел және киім шкафы бар. Мен онда ұйықтаймын, сабақ оқимын және демаламын. Ол жерде тыныш отыра алатындықтан, маған ұнайды. Бұл — үйдегі сүйікті орным."}]}, {"title": "3-БӨЛІМ. HOBBY / ACTIVITY — ХОББИ ЖӘНЕ ӘРЕКЕТТЕР", "topics": [{"t": "Hobby/Activity 1: A free-time activity", "en": "In my free time, I enjoy listening to music. I usually listen to music after studying. It helps me relax and improves my mood. I started doing this when I was younger. Many people in Kazakhstan enjoy music too.", "pr": "ин май фри тимэ, и энджой листэнинг то масик. и асаэлли листэн то масик эфтэр стадиинг. ит хэлпс мэ рэлэкс энд импровэс май муд. и стартэд дойнг сис уэн и уэс иаунгэр. мэни пэоплэ ин кэzэкхстэн энджой масик ту.", "kz": "Бос уақытымда музыка тыңдағанды ұнатамын. Әдетте сабақтан кейін музыка тыңдаймын. Ол демалуға және көңіл күйімді көтеруге көмектеседі. Мұны кішкентай кезімнен бастадым. Қазақстанда да көптеген адам музыка тыңдағанды ұнатады."}, {"t": "Hobby/Activity 2: A hobby you would like to take up", "en": "I would like to learn photography. I want to take beautiful pictures of people and nature. This hobby can help me become more creative. Many people enjoy photography because it is fun. I hope to start practising soon.", "pr": "и уаулд ликэ то лирн фотогрэфи. и уэнт то тэкэ биатифал пиктёрэс оф пэоплэ энд нэтёрэ. сис хобби кэн хэлп мэ бэкомэ морэ критивэ. мэни пэоплэ энджой фотогрэфи бэкэасэ ит ис фан. и хопэ то старт прэктисинг сун.", "kz": "Мен фотографияны үйренгім келеді. Адамдар мен табиғаттың әдемі суреттерін түсіргім келеді. Бұл хобби шығармашылығымды дамытуға көмектеседі. Көп адам фотографияны қызықты болғандықтан ұнатады. Жақында жаттығуды бастаймын деп үміттенемін."}, {"t": "Hobby/Activity 3: Something you do to help you relax", "en": "Listening to music helps me relax. I do it several times a week, especially after a busy day. Music helps me feel calm and forget about stress. Many people in my country listen to music to relax. It is a simple activity that I really enjoy.", "pr": "листэнинг то масик хэлпс мэ рэлэкс. и до ит сэвэрэл тимэс э уик, эспэкиэлли эфтэр э баси дэй. масик хэлпс мэ фил кэлм энд форгэт эбаут стрэсс. мэни пэоплэ ин май каунтри листэн то масик то рэлэкс. ит ис э симплэ эктивити сэт и рилли энджой.", "kz": "Музыка тыңдау маған демалуға көмектеседі. Мен мұны аптасына бірнеше рет, әсіресе қарбалас күннен кейін істеймін. Музыка тынышталуға және күйзелісті ұмытуға көмектеседі. Елімізде көптеген адам демалу үшін музыка тыңдайды. Бұл — маған ұнайтын қарапайым әрекет."}, {"t": "Hobby/Activity 4: A sport you enjoy watching or playing", "en": "I enjoy watching football. I sometimes watch matches with my family or friends. I like football because it is exciting and requires teamwork. It is very popular in Kazakhstan. I would like to watch a live match in a stadium.", "pr": "и энджой уэтчинг футбэлл. и сомэтимэс уэтч мэтчэс уис май фэмили ор фриэндс. и ликэ футбэлл бэкэасэ ит ис экскитинг энд рэкаёрэс тимуорк. ит ис вэри попалар ин кэzэкхстэн. и уаулд ликэ то уэтч э ливэ мэтч ин э стэдиам.", "kz": "Мен футбол көргенді ұнатамын. Кейде матчтарды отбасыммен немесе достарыммен көремін. Футбол қызықты әрі командалық жұмысты қажет ететіндіктен, маған ұнайды. Ол Қазақстанда өте танымал. Стадионда тікелей матч көргім келеді."}, {"t": "Hobby/Activity 5: A sport you would like to try", "en": "I would like to try badminton. It looks fun and helps people stay active. I want to learn the rules and improve my coordination. Badminton is played in many countries, including Kazakhstan. I hope to try it soon with my friends.", "pr": "и уаулд ликэ то три бэдминтон. ит лукс фан энд хэлпс пэоплэ стэй эктивэ. и уэнт то лирн сэ ралэс энд импровэ май курдинэшэн. бэдминтон ис плэйэд ин мэни каунтриэс, инкладинг кэzэкхстэн. и хопэ то три ит сун уис май фриэндс.", "kz": "Мен бадминтон ойнап көргім келеді. Ол қызықты көрінеді және белсенді болуға көмектеседі. Ережелерін үйреніп, қимыл үйлесімділігімді жақсартқым келеді. Бадминтон Қазақстанды қоса алғанда көптеген елде ойналады. Жақында достарыммен ойнап көремін деп үміттенемін."}, {"t": "Hobby/Activity 6: An outside activity", "en": "One outdoor activity I enjoy is walking in a park. I do it when the weather is nice. I enjoy seeing trees and getting fresh air. It helps me stay active and feel relaxed. Many people in Kazakhstan like walking outdoors.", "pr": "онэ аутдур эктивити и энджой ис уэлкинг ин э парк. и до ит уэн сэ уисэр ис никэ. и энджой сиинг трис энд гэттинг фрэш эйр. ит хэлпс мэ стэй эктивэ энд фил рэлэксэд. мэни пэоплэ ин кэzэкхстэн ликэ уэлкинг аутдурс.", "kz": "Маған ұнайтын ашық ауадағы әрекеттің бірі — саябақта серуендеу. Ауа райы жақсы кезде серуендеймін. Ағаштарды көріп, таза ауа жұтқан ұнайды. Бұл белсенді болуға және демалуға көмектеседі. Қазақстанда көптеген адам далада серуендегенді ұнатады."}, {"t": "Hobby/Activity 7: A game you enjoyed as a child", "en": "When I was a child, I enjoyed playing hide-and-seek. One person counted while the others hid. Then the person had to find everyone. I liked this game because it was exciting and we played together. Children still play it today.", "pr": "уэн и уэс э чилд, и энджойэд плэйинг хидэ-энд-сик. онэ пэрсон каунтэд уилэ сэ осэрс хид. сэн сэ пэрсон хэд то финд эвэрионэ. и ликэд сис гэмэ бэкэасэ ит уэс экскитинг энд уэ плэйэд тогэсэр. чилдрэн стилл плэй ит тодэй.", "kz": "Бала кезімде тығылыспақ ойнағанды ұнататынмын. Бір адам санап тұрғанда, қалғандары тығылатын. Содан кейін ол бәрін табуы керек еді. Бұл ойын қызықты әрі бәріміз бірге ойнағандықтан, маған ұнайтын. Балалар бұл ойынды қазір де ойнайды."}, {"t": "Hobby/Activity 8: Something you like to do at weekends", "en": "At weekends, I like spending time with my family and friends. Sometimes we go for a walk or watch a film. I enjoy this because I can rest after a busy week. It also helps me stay close to the people I love. Many people in my country do similar activities.", "pr": "эт уикэндс, и ликэ спэндинг тимэ уис май фэмили энд фриэндс. сомэтимэс уэ го фор э уэлк ор уэтч э филм. и энджой сис бэкэасэ и кэн рэст эфтэр э баси уик. ит элсо хэлпс мэ стэй клосэ то сэ пэоплэ и ловэ. мэни пэоплэ ин май каунтри до симилар эктивитиэс.", "kz": "Демалыс күндері отбасыммен және достарыммен уақыт өткізгенді ұнатамын. Кейде серуендейміз немесе фильм көреміз. Қарбалас аптадан кейін демалуға мүмкіндік беретіндіктен, бұл маған ұнайды. Бұл жақындарыммен қарым-қатынасымды нығайтады. Елімізде көп адам осындай істермен айналысады."}]}, {"title": "4-БӨЛІМ. OTHERS — БАСҚА ТАҚЫРЫПТАР", "topics": [{"t": "Others 1: A wild animal in your country", "en": "A wild animal found in Kazakhstan is the snow leopard. It lives in mountainous areas. Many people see it as a beautiful and rare animal that should be protected. I have not seen one in real life, only in pictures. I think protecting its habitat is very important.", "pr": "э уилд энимэл фаунд ин кэzэкхстэн ис сэ снау лэопард. ит ливэс ин маунтэйнаус арис. мэни пэоплэ си ит эс э биатифал энд рарэ энимэл сэт шаулд бэ протэктэд. и хэвэ нот син онэ ин рил лифэ, онли ин пиктёрэс. и синк протэктинг итс хэбитэт ис вэри импортэнт.", "kz": "Қазақстанда кездесетін жабайы жануар — қар барысы. Ол таулы аймақтарда өмір сүреді. Көп адам оны қорғау керек әдемі әрі сирек жануар деп санайды. Мен оны өмірде көрген жоқпын, тек суреттерден көрдім. Оның мекенін қорғау өте маңызды деп ойлаймын."}, {"t": "Others 2: An environmental problem", "en": "One environmental problem in Kazakhstan is air pollution in some cities. It can be caused by cars, factories and heating systems. It is serious because clean air is important for everyone. We can use public transport, plant trees and reduce pollution. The government and citizens should work together.", "pr": "онэ энвёронмэнтэл проблэм ин кэzэкхстэн ис эйр поллашэн ин сомэ китиэс. ит кэн бэ кэасэд би карс, фэкториэс энд хитинг систэмс. ит ис сэриаус бэкэасэ клин эйр ис импортэнт фор эвэрионэ. уэ кэн асэ паблик трэнспорт, плэнт трис энд рэдакэ поллашэн. сэ говэрнмэнт энд китиzэнс шаулд уорк тогэсэр.", "kz": "Қазақстандағы экологиялық мәселелердің бірі — кейбір қалалардағы ауаның ластануы. Оған көліктер, зауыттар және жылыту жүйелері себеп болуы мүмкін. Бұл маңызды мәселе, өйткені таза ауа бәріне қажет. Қоғамдық көлікті пайдаланып, ағаш отырғызып, ластануды азайтуға болады. Үкімет пен тұрғындар бірге әрекет етуі керек."}, {"t": "Others 3: A subject you liked at school", "en": "My favourite school subject was English. I liked it because learning languages is interesting. I enjoyed learning new words and practising speaking. I was not perfect, but I tried to improve. English can help me study, travel and communicate with people.", "pr": "май фэвауритэ счул сабджэкт уэс энглиш. и ликэд ит бэкэасэ лирнинг лэнгаэгэс ис интэрэстинг. и энджойэд лирнинг нэу уордс энд прэктисинг спикинг. и уэс нот пэрфэкт, бат и триэд то импровэ. энглиш кэн хэлп мэ стади, трэвэл энд комманикэтэ уис пэоплэ.", "kz": "Мектептегі сүйікті пәнім ағылшын тілі болды. Тіл үйрену қызықты болғандықтан, маған ұнайтын. Жаңа сөздерді үйреніп, сөйлеуді жаттықтырғанды ұнаттым. Мінсіз болмасам да, жақсартуға тырыстым. Ағылшын тілі оқуға, саяхаттауға және адамдармен сөйлесуге көмектеседі."}, {"t": "Others 4: An ideal job", "en": "My ideal job would be interesting and useful. I would like to work with friendly people and keep learning new things. The job might be challenging, but I would try my best. Finding a good job can take time and effort. I hope to have a job that I enjoy.", "pr": "май идил джоб уаулд бэ интэрэстинг энд асэфал. и уаулд ликэ то уорк уис фриэндли пэоплэ энд кип лирнинг нэу сингс. сэ джоб майт бэ чэллэнгинг, бат и уаулд три май бэст. финдинг э гуд джоб кэн тэкэ тимэ энд эффорт. и хопэ то хэвэ э джоб сэт и энджой.", "kz": "Менің арманымдағы жұмыс қызықты әрі пайдалы болар еді. Ақкөңіл адамдармен жұмыс істеп, жаңа нәрселерді үйренгім келеді. Жұмыс қиын болуы мүмкін, бірақ бар күшімді саламын. Жақсы жұмыс табуға уақыт пен күш қажет. Өзіме ұнайтын жұмыста істеймін деп үміттенемін."}, {"t": "Others 5: Food", "en": "My favourite food is beshbarmak. It is a traditional Kazakh dish made with meat and dough. I eat it at family gatherings and special occasions. I like it because it is tasty and reminds me of home. Beshbarmak is popular in Kazakhstan.", "pr": "май фэвауритэ фуд ис бэшбармэк. ит ис э трэдишэнэл кэzэкх диш мэдэ уис мит энд доу. и ит ит эт фэмили гэсэрингс энд спэкиэл оккэжэнс. и ликэ ит бэкэасэ ит ис тэсти энд рэминдс мэ оф хомэ. бэшбармэк ис попалар ин кэzэкхстэн.", "kz": "Менің сүйікті тағамым — бешбармақ. Бұл ет пен қамырдан жасалатын қазақтың дәстүрлі тағамы. Мен оны отбасылық басқосуларда және ерекше күндері жеймін. Дәмді әрі үйді еске түсіретіндіктен, маған ұнайды. Бешбармақ Қазақстанда танымал."}, {"t": "Others 6: Type of clothes", "en": "I like wearing comfortable and casual clothes. I often choose jeans, T-shirts and trainers. I like these clothes because they are easy to wear every day. I usually buy them in shopping centres or online. Casual clothes are popular in my country.", "pr": "и ликэ уиринг комфортэблэ энд кэсаэл клосэс. и офтэн чусэ джинс, т-шёртс энд трэйнэрс. и ликэ сэсэ клосэс бэкэасэ сэи арэ иси то уир эвэри дэй. и асаэлли баи сэм ин шоппинг кэнтрэс ор онлинэ. кэсаэл клосэс арэ попалар ин май каунтри.", "kz": "Мен ыңғайлы әрі күнделікті киімдерді ұнатамын. Көбіне джинсы, футболка және кроссовка таңдаймын. Оларды күн сайын кию оңай болғандықтан ұнатамын. Әдетте сауда орталықтарынан немесе интернеттен сатып аламын. Күнделікті киімдер елімізде танымал."}, {"t": "Others 7: Favourite month or season", "en": "My favourite season is spring. The weather becomes warmer and flowers begin to grow. I enjoy walking outside and spending time with friends. Spring feels fresh and hopeful after winter. That is why it is special to me.", "pr": "май фэвауритэ сисон ис спринг. сэ уисэр бэкомэс уармэр энд флауэрс бэгин то грау. и энджой уэлкинг аутсидэ энд спэндинг тимэ уис фриэндс. спринг филс фрэш энд хопэфал эфтэр уинтэр. сэт ис уи ит ис спэкиэл то мэ.", "kz": "Менің сүйікті жыл мезгілім — көктем. Ауа райы жылып, гүлдер өсе бастайды. Далада серуендеп, достарыммен уақыт өткізгенді ұнатамын. Қыстан кейін көктем сергектік пен үміт сыйлайды. Сондықтан ол мен үшін ерекше."}, {"t": "Others 8: Favourite type of weather", "en": "My favourite weather is sunny and mild. I like going outside when it is not too hot or too cold. I can walk, meet friends and enjoy nature. People in Kazakhstan often talk about the weather because it changes a lot. Sunny weather usually improves my mood.", "pr": "май фэвауритэ уисэр ис санни энд милд. и ликэ гойнг аутсидэ уэн ит ис нот ту хот ор ту колд. и кэн уэлк, мит фриэндс энд энджой нэтёрэ. пэоплэ ин кэzэкхстэн офтэн тэлк эбаут сэ уисэр бэкэасэ ит чэнгэс э лот. санни уисэр асаэлли импровэс май муд.", "kz": "Менің сүйікті ауа райым — күн ашық әрі жылы болған кез. Өте ыстық та, суық та емес кезде далаға шыққанды ұнатамын. Серуендеп, достарыммен кездесіп, табиғатты тамашалай аламын. Қазақстанда ауа райы жиі өзгеретіндіктен, адамдар ол туралы көп сөйлеседі. Күн ашық болса, көңіл күйім жақсарады."}, {"t": "Others 9: Extreme weather", "en": "Once I experienced very strong wind in my area. It was difficult to walk outside, and dust was blowing around. The weather felt extreme because the wind was unusually strong. Strong winds sometimes happen in Kazakhstan. People should be careful and stay indoors if necessary.", "pr": "онкэ и экспэриэнкэд вэри стронг уинд ин май ари. ит уэс диффикалт то уэлк аутсидэ, энд даст уэс блауинг араунд. сэ уисэр фэлт экстрэмэ бэкэасэ сэ уинд уэс анасаэлли стронг. стронг уиндс сомэтимэс хэппэн ин кэzэкхстэн. пэоплэ шаулд бэ карэфал энд стэй индурс иф нэкэссари.", "kz": "Бірде мен тұратын жерде өте қатты жел болды. Далада жүру қиын болып, шаң ұшты. Жел әдеттен тыс қатты болғандықтан, ауа райы төтенше сезілді. Қазақстанда кейде қатты жел соғады. Адамдар сақ болып, қажет болса үйде қалуы керек."}, {"t": "Others 10: Something good about your personality", "en": "One good thing about my personality is that I am helpful. I try to support my friends and family when they need me. This makes my relationships stronger. People often say that I am kind and reliable. I am happy to have this quality.", "pr": "онэ гуд синг эбаут май пэрсонэлити ис сэт и эм хэлпфал. и три то саппорт май фриэндс энд фэмили уэн сэи нид мэ. сис мэкэс май рэлэшэншипс стронгэр. пэоплэ офтэн сэй сэт и эм кинд энд рэлиэблэ. и эм хэппи то хэвэ сис каэлити.", "kz": "Мінезімнің жақсы қасиеттерінің бірі — көмектесуге дайын болуым. Достарым мен отбасымның көмегі қажет болса, қолдауға тырысамын. Бұл қарым-қатынасымды нығайтады. Адамдар мені мейірімді әрі сенімді деп жиі айтады. Осындай қасиетім бар екеніне қуанамын."}, {"t": "Others 11: A future plan or ambition", "en": "One of my future plans is to finish my studies successfully. I have wanted to do well for a long time. Education can help me find a good job and become independent. I know I must work hard and manage my time. I believe I can achieve this goal.", "pr": "онэ оф май фатёрэ плэнс ис то финиш май стадиэс саккэссфалли. и хэвэ уэнтэд то до уэлл фор э лонг тимэ. эдакэшэн кэн хэлп мэ финд э гуд джоб энд бэкомэ индэпэндэнт. и кнау и маст уорк хард энд мэнэгэ май тимэ. и бэлиэвэ и кэн эчиэвэ сис гоэл.", "kz": "Болашақтағы жоспарларымның бірі — оқуымды сәтті аяқтау. Мен көптен бері жақсы оқығым келеді. Білім жақсы жұмыс табуға және тәуелсіз болуға көмектеседі. Еңбек етіп, уақытымды дұрыс жоспарлауым керек екенін білемін. Бұл мақсатыма жете аламын деп сенемін."}, {"t": "Others 12: An important invention before computers", "en": "An important invention before computers was the telephone. It allowed people to talk over long distances. This made communication much faster and easier. I think it is important because it changed the way people stay in touch. Telephones are still used today, although many are now mobile phones.", "pr": "эн импортэнт инвэншэн бэфорэ компатэрс уэс сэ тэлэфонэ. ит эллауэд пэоплэ то тэлк овэр лонг дистэнкэс. сис мэдэ комманикэшэн мач фэстэр энд исиэр. и синк ит ис импортэнт бэкэасэ ит чэнгэд сэ уэй пэоплэ стэй ин тауч. тэлэфонэс арэ стилл асэд тодэй, элсоу мэни арэ нау мобилэ фонэс.", "kz": "Компьютерлерге дейінгі маңызды өнертабыстардың бірі — телефон. Ол адамдарға алыс қашықтықта сөйлесуге мүмкіндік берді. Бұл қарым-қатынасты әлдеқайда жылдам әрі оңай етті. Ол адамдардың байланысу тәсілін өзгерткендіктен маңызды деп ойлаймын. Қазір де телефон қолданылады, бірақ олардың көбі ұялы телефон."}, {"t": "Others 13: A form of public transport", "en": "My favourite form of public transport is the bus. It is convenient and usually costs less than a taxi. I use it when I need to travel around the city. I like it because I do not have to drive. Buses are popular in many places in Kazakhstan.", "pr": "май фэвауритэ форм оф паблик трэнспорт ис сэ бас. ит ис конвэниэнт энд асаэлли костс лэсс сэн э тэкси. и асэ ит уэн и нид то трэвэл араунд сэ кити. и ликэ ит бэкэасэ и до нот хэвэ то дривэ. басэс арэ попалар ин мэни плэкэс ин кэzэкхстэн.", "kz": "Менің сүйікті қоғамдық көлігім — автобус. Ол ыңғайлы және әдетте таксиден арзан. Қала ішінде жүру керек болғанда пайдаланамын. Өзім көлік жүргізудің қажеті жоқ болғандықтан, ұнайды. Автобустар Қазақстанның көптеген жерінде танымал."}, {"t": "Others 14: A public event", "en": "A public event I enjoyed was a city festival. I went there with my friends. There was music, dancing and different activities. I liked the cheerful atmosphere and the chance to spend time with people. I would like to attend a similar event again.", "pr": "э паблик эвэнт и энджойэд уэс э кити фэстивэл. и уэнт сэрэ уис май фриэндс. сэрэ уэс масик, дэнкинг энд диффэрэнт эктивитиэс. и ликэд сэ чирфал этмосфэрэ энд сэ чэнкэ то спэнд тимэ уис пэоплэ. и уаулд ликэ то эттэнд э симилар эвэнт эгэйн.", "kz": "Маған ұнаған қоғамдық іс-шара — қалалық фестиваль. Мен оған достарыммен бардым. Онда музыка, би және әртүрлі іс-шаралар болды. Маған көңілді атмосфера мен адамдармен уақыт өткізу мүмкіндігі ұнады. Осындай шараға қайта барғым келеді."}, {"t": "Others 15: A sporting event", "en": "A sporting event I watched was a football match on television. I watched it with my family. The teams played well, and the match was exciting. I liked the teamwork and the excitement near the end. I would like to watch another match in the future.", "pr": "э спортинг эвэнт и уэтчэд уэс э футбэлл мэтч он тэлэвижэн. и уэтчэд ит уис май фэмили. сэ тимс плэйэд уэлл, энд сэ мэтч уэс экскитинг. и ликэд сэ тимуорк энд сэ экскитэмэнт нир сэ энд. и уаулд ликэ то уэтч эносэр мэтч ин сэ фатёрэ.", "kz": "Мен көрген спорттық шара — теледидардан көрсетілген футбол матчы. Оны отбасыммен бірге көрдім. Командалар жақсы ойнап, матч қызықты өтті. Маған командалық ойын және матч соңындағы толқу ұнады. Болашақта тағы бір матч көргім келеді."}]}];
+let cards=[], queue=[], pos=0, known=new Set(), unknown=new Set(), revealed=false, hideMode=false;
+let vpos=0, recs={};
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function cleanTopic(t){return t.replace(/^([A-Za-z/]+)\s+\d+[.:]\s*/,'').replace(/^[^:]+:\s*/,'');}
+
+function init(){
+  cards=[];
+  DATA.forEach(s=>s.topics.forEach(t=>cards.push(Object.assign({sec:s.title.split('—')[0].trim()},t))));
+  reset(); renderList();
+  document.getElementById('btn-hide').style.display = DATA[0].topics[0].ru ? '' : 'none';
+}
+function reset(){queue=cards.map((_,i)=>i);pos=0;known.clear();unknown.clear();revealed=false;update();}
+function resetUnknown(){queue=cards.map((_,i)=>i).filter(i=>unknown.has(i));pos=0;revealed=false;update();}
+function cur(){return cards[queue[pos]]}
+function nav(d){if(!queue.length)return;pos=(pos+d+queue.length)%queue.length;revealed=false;update();}
+function showAns(){revealed=true;update();}
+function mark(ok){
+  if(!queue.length)return;
+  const i=queue[pos];
+  if(ok){known.add(i);unknown.delete(i);queue.splice(pos,1);}
+  else{unknown.add(i);known.delete(i);queue.splice(pos,1);queue.push(i);pos=Math.min(pos+1,queue.length-1);}
+  revealed=false;update();
+}
+function reshuffle(){const q=queue.slice();for(let i=q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[q[i],q[j]]=[q[j],q[i]];}queue=q;pos=0;revealed=false;update();}
+
+function answerBlock(cd){
+  let h='<div class="en">🇬🇧 '+esc(cd.en)+'</div>';
+  if(cd.pr) h+='<div class="pr">🔊 Оқылуы: '+esc(cd.pr)+'</div>';
+  if(cd.ru) h+='<div class="tr"><b>Перевод:</b> '+esc(cd.ru)+'</div>';
+  if(cd.kz) h+='<div class="tr"><b>Аудармасы:</b> '+esc(cd.kz)+'</div>';
+  return h;
+}
+
+function update(){
+  const total=cards.length;
+  document.getElementById('stats').textContent='В очереди: '+queue.length+' · Позиция: '+(queue.length?(pos+1)+'/'+queue.length:'—')+' · ✅ знаю: '+known.size+' · ❌ не знаю: '+unknown.size;
+  document.getElementById('pbar').style.width=(known.size/total*100)+'%';
+  const c=document.getElementById('card');
+  if(!queue.length){
+    c.innerHTML='<div style="text-align:center;padding:26px 0"><div style="font-size:44px">🎉</div><div class="topic" style="margin-top:8px">Всё пройдено!</div><div class="tr" style="text-align:center">Знаю: '+known.size+' · Не знаю: '+unknown.size+'</div><div class="actions" style="justify-content:center">'+
+      (unknown.size?'<button class="btn red big" onclick="resetUnknown()">Повторить «не знаю» ('+unknown.size+')</button>':'')+
+      '<button class="btn big" onclick="reset()">Заново (все)</button><button class="btn" onclick="showView(\'list\')">К списку</button></div></div>';
+    return;
+  }
+  const cd=cur();
+  if(revealed){
+    c.innerHTML='<div class="chip">'+esc(cd.sec)+'</div><div class="topic">'+esc(cd.t)+'</div>'+
+      '<div class="answer">'+answerBlock(cd)+'</div>'+
+      '<div class="actions"><button class="btn red big" onclick="mark(false)">❌ Не знаю</button><button class="btn green big" onclick="mark(true)">✅ Знаю</button></div>';
+  }else{
+    c.innerHTML='<div class="chip">'+esc(cd.sec)+'</div><div class="topic">'+esc(cd.t)+'</div>'+
+      '<div class="answer"><div class="hidden-box" onclick="showAns()">💭 Подумай ответ по-английски…<br><b>Нажми, чтобы показать</b></div></div>'+
+      '<div class="navrow"><button class="btn primary big" onclick="showAns()">Показать ответ</button></div>';
+  }
+}
+
+function renderList(){
+  document.getElementById('list-view').innerHTML=DATA.map(s=>
+    '<div class="sechead">'+esc(s.title)+'</div>'+
+    s.topics.map(t=>'<div class="item"><div class="topic">'+esc(t.t)+'</div>'+
+      '<div class="en">🇬🇧 '+esc(t.en)+'</div>'+
+      (t.pr?'<div class="pr">🔊 Оқылуы: '+esc(t.pr)+'</div>':'')+
+      (t.ru?'<div class="tr">🇷🇺 '+esc(t.ru)+'</div>':'')+
+      (t.kz?'<div class="tr">🇰🇿 '+esc(t.kz)+'</div>':'')+
+      '</div>').join('')).join('');
+}
+function toggleHide(){
+  hideMode=!hideMode;
+  document.getElementById('btn-hide').textContent=hideMode?'👁 Показать англ.':'🙈 Скрыть англ.';
+  document.querySelectorAll('#list-view .en').forEach(el=>{
+    if(hideMode){ if(!el.dataset.orig) el.dataset.orig=el.innerHTML; el.innerHTML='<span class="enlocked">🔒 Английский — нажми, чтобы показать</span>'; }
+    else{ el.innerHTML=el.dataset.orig||el.innerHTML; }
+  });
+}
+document.addEventListener('click',e=>{
+  const s=e.target.closest('.enlocked');
+  if(s){const en=s.closest('.en'); if(en&&en.dataset.orig) en.innerHTML=en.dataset.orig;}
+});
+
+/* ---------- голоса (TTS) ---------- */
+let voices=[];
+function loadVoices(){try{voices=speechSynthesis.getVoices();}catch(e){}}
+if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadVoices;loadVoices();}
+function pickVoice(){
+  return voices.find(v=>v.lang==='en-GB')||voices.find(v=>v.lang==='en-US')||voices.find(v=>/^en/i.test(v.lang))||null;
+}
+function speakQuestion(auto){
+  if(!('speechSynthesis' in window)){alert('Озвучка не поддерживается этим браузером.');return;}
+  const cd=cards[vpos];
+  const u=new SpeechSynthesisUtterance('Can you tell me about '+cleanTopic(cd.t)+'? Please answer in English.');
+  const v=pickVoice(); if(v)u.voice=v;
+  u.rate=0.95;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+/* ---------- запись голоса ---------- */
+let mediaRecorder=null, recChunks=[], recStream=null, recActive=false, recTimer=null, recSecs=0;
+function fmt(s){const m=Math.floor(s/60);return m+':'+String(s%60).padStart(2,'0');}
+async function startRec(){
+  try{ recStream=await navigator.mediaDevices.getUserMedia({audio:true}); }
+  catch(e){ alert('Нет доступа к микрофону: '+e.message+'. Разреши доступ в настройках браузера.'); return; }
+  recChunks=[];
+  mediaRecorder=new MediaRecorder(recStream);
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};
+  mediaRecorder.onstop=()=>{
+    const blob=new Blob(recChunks,{type:mediaRecorder.mimeType||'audio/webm'});
+    recs[vpos]=URL.createObjectURL(blob);
+    recStream.getTracks().forEach(t=>t.stop());
+    recActive=false;
+    renderVoice();
+  };
+  mediaRecorder.start();
+  recActive=true; recSecs=0;
+  recTimer=setInterval(()=>{recSecs++;const el=document.getElementById('recTimer');if(el)el.textContent=fmt(recSecs);},1000);
+  renderVoice();
+}
+function stopRec(){
+  clearInterval(recTimer);
+  if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+}
+
+/* ---------- распознавание речи ---------- */
+let recognition=null, recognizing=false;
+function SR(){return window.SpeechRecognition||window.webkitSpeechRecognition;}
+function startTranscribe(){
+  const C=SR();
+  if(!C){alert('Распознавание речи недоступно в этом браузере. Попробуй Chrome — там всё работает.');return;}
+  if(recognizing){recognition.stop();return;}
+  recognition=new C();
+  recognition.lang='en-US';
+  recognition.continuous=true;
+  recognition.interimResults=true;
+  let finalT='';
+  recognition.onresult=e=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const r=e.results[i];
+      if(r.isFinal)finalT+=r[0].transcript+' ';
+      else interim+=r[0].transcript;
+    }
+    const box=document.getElementById('transBox');
+    if(box)box.textContent=(finalT+interim)||'…';
+  };
+  recognition.onend=()=>{recognizing=false;renderVoice();};
+  recognition.onerror=()=>{recognizing=false;renderVoice();};
+  recognizing=true;
+  const box=document.getElementById('transBox');
+  if(box)box.textContent='🎧 слушаю…';
+  recognition.start();
+  renderVoice();
+}
+
+function vnav(d){
+  vpos=(vpos+d+cards.length)%cards.length;
+  clearInterval(recTimer);
+  if(recActive)stopRec();
+  renderVoice();
+  speakQuestion(true);
+}
+
+function renderVoice(){
+  const el=document.getElementById('voice-view');
+  if(el.style.display==='none')return;
+  const cd=cards[vpos];
+  const hasMic=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+  document.getElementById('vstats').textContent='Вопрос '+(vpos+1)+' / '+cards.length;
+  document.getElementById('vbar').style.width(((vpos+1)/cards.length*100)+'%');
+  let h='<div class="chip">'+esc(cd.sec)+'</div><div class="topic">'+esc(cd.t)+'</div>';
+  h+='<button class="btn vio big" style="width:100%" onclick="speakQuestion(false)">🔊 ИИ: задать вопрос</button>';
+  h+='<hr class="divider">';
+  h+='<div class="tr" style="margin:0 0 6px"><b>Твой ответ:</b></div>';
+  if(recActive){
+    h+='<div class="recrow"><span class="recdot"></span><span id="recTimer">0:00</span><span style="color:var(--mut);font-size:13px">идёт запись…</span></div>'+
+       '<button class="btn red big" style="width:100%" onclick="stopRec()">⏹ Остановить запись</button>';
+  }else{
+    if(recs[vpos]){
+      h+='<audio controls src="'+recs[vpos]+'"></audio>';
+      h+='<button class="btn" style="width:100%" onclick="recs['+vpos+']=undefined;renderVoice()">🔁 Записать заново</button>';
+    }
+    if(hasMic){
+      h+='<button class="btn green big" style="width:100%" onclick="startRec()">'+(recs[vpos]?'🎤 Ещё запись':'🎤 Записать ответ')+'</button>';
+    }else{
+      h+='<div class="micnote">⚠️ Микрофон доступен только по HTTPS (ссылка с сайта) и в современном браузере.</div>';
+    }
+  }
+  if(SR()){
+    h+='<div class="recrow"><button class="btn" onclick="startTranscribe()">'+(recognizing?'⏹ Перестать слушать':'📝 Распознать мой голос (текстом)')+'</button></div>'+
+       '<div id="transBox" class="tr" style="background:#16233b;border-radius:10px;padding:10px;min-height:20px">'+(recognizing?'🎧 слушаю…':'')+'</div>';
+  }
+  h+='<details><summary>Показать эталонный ответ (для сравнения)</summary>'+answerBlock(cd)+'</details>';
+  document.getElementById('vcard').innerHTML=h;
+}
+
+function showView(v){
+  const L=document.getElementById('list-view'),C=document.getElementById('card-view'),V=document.getElementById('voice-view');
+  L.style.display=v==='list'?'':'none';
+  C.style.display=v==='cards'?'':'none';
+  V.style.display=v==='voice'?'':'none';
+  ['list','cards','voice'].forEach(x=>{
+    const b=document.getElementById('tab-'+x);
+    b.classList.toggle('primary',x===v);
+  });
+  if(v==='cards')update();
+  if(v==='voice'){renderVoice();speakQuestion(true);}
+  if(v==='list'&&window.speechSynthesis)speechSynthesis.cancel();
+  if(v!=='voice'){
+    clearInterval(recTimer);
+    if(recActive&&mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+    if(recognizing){try{recognition.stop();}catch(e){}}
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  const cv=document.getElementById('card-view');
+  if(cv.style.display==='none')return;
+  if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(!revealed)showAns();else nav(1);}
+  else if(e.key==='ArrowRight')nav(1);
+  else if(e.key==='ArrowLeft')nav(-1);
+  else if(e.key==='1'&&revealed)mark(true);
+  else if(e.key==='2'&&revealed)mark(false);
+});
+init();
+</script>
+</body>
+</html>
